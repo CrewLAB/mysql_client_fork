@@ -1,0 +1,59 @@
+import 'package:mysql_client_fork/mysql_client.dart';
+
+Future<void> main(List<String> arguments) async {
+  print('Connecting to mysql server...');
+
+  // create connection
+  final MySQLConnection conn = await MySQLConnection.createConnection(
+    endpoint: const Endpoint(
+      host: '127.0.0.1',
+      username: 'your_user',
+      password: 'your_password',
+      database: 'your_database_name', // optional
+    ),
+  );
+
+  await conn.connect();
+
+  print('Connected');
+
+  // update some rows
+  IResultSet res = await conn.execute('UPDATE book SET price = :price', params: <String, dynamic>{'price': 200});
+
+  print(res.affectedRows);
+
+  // insert some rows
+  res = await conn.execute(
+    'INSERT INTO book (author_id, title, price, created_at) VALUES (:author, :title, :price, :created)',
+    params: <String, dynamic>{'author': null, 'title': 'New title', 'price': 200, 'created': '2022-02-02'},
+  );
+
+  print(res.affectedRows);
+
+  // make query
+  final IResultSet result = await conn.execute('SELECT * FROM book');
+
+  // print some result data
+  print(result.numOfColumns);
+  print(result.numOfRows);
+  print(result.lastInsertID);
+  print(result.affectedRows);
+
+  // print query result
+  for (final ResultSetRow row in result.rows) {
+    print(row.colAt(0)); // get id as String
+    print(row.colByName('title')); // get title as String
+
+    print(row.typedColAt<int>(0)); // get id as int
+    print(row.typedColByName<double>('price')); // get price as double
+
+    // print all rows as Map<String, String>
+    print(row.assoc());
+
+    // autodetect best Dart type based on column type and return Map<String, dynamic>
+    print(row.typedAssoc());
+  }
+
+  // close all connections
+  await conn.close();
+}

@@ -1,0 +1,9 @@
+include: ../../core/analysis_options.yaml
+
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options
+
+linter:
+  rules:
+    # Enable additional lints for this package here.
+    avoid_print: false
